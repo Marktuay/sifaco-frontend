@@ -4,12 +4,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { fetchApi } from '@/lib/api-client';
-import { RolUsuario } from '@/types';
 import { ShieldCheck, UserCheck } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@sifaco.ni');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,30 +29,7 @@ export default function LoginPage() {
       login(res.token, res.usuario);
       router.push('/');
     } catch (err: any) {
-      let rolFallback: RolUsuario = 'ADMIN';
-      let nombreFallback = 'Administrador General';
-
-      if (email.includes('contador')) {
-        rolFallback = 'CONTADOR';
-        nombreFallback = 'Lic. Carlos Mendoza (Contador)';
-      } else if (email.includes('cajero')) {
-        rolFallback = 'FACTURADOR';
-        nombreFallback = 'María Gutiérrez (Facturación & Caja)';
-      } else if (email.includes('cobranza')) {
-        rolFallback = 'GESTOR_CXC';
-        nombreFallback = 'Roberto Silva (Gestor CxC)';
-      } else if (email.includes('eventos')) {
-        rolFallback = 'COORDINADOR_EVENTOS';
-        nombreFallback = 'Elena Ramos (Coordinadora de Eventos)';
-      }
-
-      login('mock-jwt-token', {
-        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a99',
-        nombre: nombreFallback,
-        email: email,
-        rol: rolFallback,
-      });
-      router.push('/');
+      setError(err.message || 'Credenciales de acceso no válidas. Verifique su correo y contraseña.');
     } finally {
       setLoading(false);
     }
@@ -100,6 +76,7 @@ export default function LoginPage() {
               className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
               placeholder="usuario@sifaco.ni"
               required
+              autoComplete="email"
             />
           </div>
 
@@ -112,6 +89,7 @@ export default function LoginPage() {
               className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
               placeholder="••••••••"
               required
+              autoComplete="current-password"
             />
           </div>
 
@@ -125,15 +103,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Acceso Rápido por Rol Demo */}
+        {/* Cuentas Demo Sugeridas */}
         <div className="border-t border-slate-200 pt-4 space-y-2">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
-            Selección Rápida de Cuentas Demo por Rol:
+            Relleno Rápido para Pruebas de Roles:
           </div>
           <div className="flex flex-wrap gap-1.5 justify-center">
             {cuentasDemo.map((item) => (
               <button
                 key={item.rol}
+                type="button"
                 onClick={() => seleccionarCuentaDemo(item.email, item.pass)}
                 className={`text-[11px] font-bold px-2.5 py-1 rounded-md border transition ${
                   email === item.email
