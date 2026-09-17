@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('sifaco_auth_token');
     localStorage.removeItem('sifaco_user');
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://34.61.174.107/api/v1';
     try {
       fetch(`${apiBaseUrl}/auditoria/logs`, {
         method: 'POST',
