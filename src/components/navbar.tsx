@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
@@ -17,12 +17,28 @@ import {
   ShieldAlert,
   UserCheck,
   LogOut,
+  ChevronDown,
+  Building2,
+  Wallet
 } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { usuario, logout, cargandoAuth, tienePermiso } = useAuth();
+  const [dropdownCuentasAbierto, setDropdownCuentasAbierto] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar el dropdown si se hace clic fuera de él
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownCuentasAbierto(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (pathname === '/login') {
     return (
@@ -42,24 +58,33 @@ export default function Navbar() {
     router.push('/login');
   };
 
-  const navLinks: { href: string; label: string; roles: RolUsuario[]; icon: React.ReactNode }[] = [
-    { href: '/', label: 'Dashboard', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'GESTOR_CXC', 'COORDINADOR_EVENTOS'], icon: <LayoutDashboard className="w-4 h-4" /> },
-    { href: '/crm/clientes', label: 'Clientes', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'GESTOR_CXC', 'COORDINADOR_EVENTOS'], icon: <Users className="w-4 h-4" /> },
-    { href: '/facturacion', label: 'Facturación', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR'], icon: <FileText className="w-4 h-4" /> },
-    { href: '/cartera/cxc', label: 'Cartera CxC', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'GESTOR_CXC'], icon: <CreditCard className="w-4 h-4" /> },
-    { href: '/cartera/cxp', label: 'Compras CxP', roles: ['ADMIN', 'CONTADOR'], icon: <ShoppingBag className="w-4 h-4" /> },
-    { href: '/contabilidad', label: 'Contabilidad', roles: ['ADMIN', 'CONTADOR'], icon: <Calculator className="w-4 h-4" /> },
-    { href: '/eventos', label: 'Eventos', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'COORDINADOR_EVENTOS'], icon: <Calendar className="w-4 h-4" /> },
-    { href: '/reportes/dgi', label: 'Reportes DGI', roles: ['ADMIN', 'CONTADOR'], icon: <BarChart3 className="w-4 h-4" /> },
-    { href: '/auditoria', label: 'Auditoría & DRP', roles: ['ADMIN', 'CONTADOR'], icon: <ShieldAlert className="w-4 h-4" /> },
-    { href: '/admin/usuarios', label: 'Usuarios', roles: ['ADMIN'], icon: <UserCheck className="w-4 h-4" /> },
+  // Submenú Cuentas (Contabilidad, Cartera CxC, Compras CxP)
+  const itemsCuentas = [
+    { href: '/cartera/cxc', label: 'Cartera CxC', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'GESTOR_CXC'] as RolUsuario[], icon: <CreditCard className="w-4 h-4 text-emerald-400" />, desc: 'Cobranza y saldos pendientes' },
+    { href: '/cartera/cxp', label: 'Compras CxP', roles: ['ADMIN', 'CONTADOR'] as RolUsuario[], icon: <ShoppingBag className="w-4 h-4 text-amber-400" />, desc: 'Gastos de proveedores y retenciones' },
+    { href: '/contabilidad', label: 'Contabilidad', roles: ['ADMIN', 'CONTADOR'] as RolUsuario[], icon: <Calculator className="w-4 h-4 text-indigo-400" />, desc: 'Libro diario y estados financieros' },
+  ];
+
+  const itemsCuentasVisibles = itemsCuentas.filter((item) => tienePermiso(item.roles));
+  const esCuentasActivo = itemsCuentasVisibles.some((item) => pathname === item.href);
+
+  // Enlaces Principales del Menú Superior (Reordenado y Optimizado)
+  const navLinks = [
+    { href: '/', label: 'Dashboard', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'GESTOR_CXC', 'COORDINADOR_EVENTOS'] as RolUsuario[], icon: <LayoutDashboard className="w-4 h-4" /> },
+    { href: '/crm/clientes', label: 'Clientes', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'GESTOR_CXC', 'COORDINADOR_EVENTOS'] as RolUsuario[], icon: <Users className="w-4 h-4" /> },
+    { href: '/facturacion', label: 'Facturación', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR'] as RolUsuario[], icon: <FileText className="w-4 h-4" /> },
+    // Cuentas se renderiza dinámicamente como submenú Dropdown
+    { href: '/eventos', label: 'Eventos', roles: ['ADMIN', 'CONTADOR', 'FACTURADOR', 'COORDINADOR_EVENTOS'] as RolUsuario[], icon: <Calendar className="w-4 h-4" /> },
+    { href: '/reportes/dgi', label: 'Reportes DGI', roles: ['ADMIN', 'CONTADOR'] as RolUsuario[], icon: <BarChart3 className="w-4 h-4" /> },
+    { href: '/auditoria', label: 'Auditoría & DRP', roles: ['ADMIN', 'CONTADOR'] as RolUsuario[], icon: <ShieldAlert className="w-4 h-4" /> },
+    { href: '/admin/usuarios', label: 'Usuarios', roles: ['ADMIN'] as RolUsuario[], icon: <UserCheck className="w-4 h-4" /> },
   ];
 
   const linksVisibles = navLinks.filter((link) => tienePermiso(link.roles));
 
   return (
-    <header className="bg-slate-900 text-white shadow border-b border-slate-800" role="banner">
-      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+    <header className="bg-slate-900 text-white shadow-md border-b border-slate-800 relative z-40" role="banner">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-4">
         
         {/* Izquierda: Logo SIFACO */}
         <div className="flex items-center space-x-4 shrink-0">
@@ -73,31 +98,168 @@ export default function Navbar() {
           <div className="h-5 w-px bg-slate-800 hidden md:block" />
         </div>
 
-        {/* Centro / Enlaces de Navegación con Iconos y Accesibilidad en una sola línea */}
+        {/* Centro: Navegación Limpia Sin Barra de Desplazamiento */}
         <nav
-          className="flex items-center space-x-1 lg:space-x-1.5 overflow-x-auto text-xs md:text-sm font-medium py-1 scrollbar-none"
+          className="flex items-center space-x-1 lg:space-x-2 text-xs md:text-sm font-medium py-1"
           aria-label="Navegación Principal"
         >
-          {linksVisibles.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={isActive ? 'page' : undefined}
-                className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-emerald-400/50 ${
-                  isActive
+          {/* 1. Dashboard */}
+          {linksVisibles.find(l => l.href === '/') && (
+            <Link
+              href="/"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 text-emerald-400" />
+              <span>Dashboard</span>
+            </Link>
+          )}
+
+          {/* 2. Clientes */}
+          {linksVisibles.find(l => l.href === '/crm/clientes') && (
+            <Link
+              href="/crm/clientes"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/crm/clientes'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Users className="w-4 h-4 text-slate-400" />
+              <span>Clientes</span>
+            </Link>
+          )}
+
+          {/* 3. Facturación */}
+          {linksVisibles.find(l => l.href === '/facturacion') && (
+            <Link
+              href="/facturacion"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/facturacion'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <FileText className="w-4 h-4 text-slate-400" />
+              <span>Facturación</span>
+            </Link>
+          )}
+
+          {/* 4. SUBMENÚ DESPLEGABLE: CUENTAS (Cartera CxC, Compras CxP, Contabilidad) */}
+          {itemsCuentasVisibles.length > 0 && (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownCuentasAbierto(!dropdownCuentasAbierto)}
+                onMouseEnter={() => setDropdownCuentasAbierto(true)}
+                className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                  esCuentasActivo || dropdownCuentasAbierto
                     ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
+                aria-expanded={dropdownCuentasAbierto}
               >
-                <span className={isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400 transition-colors'}>
-                  {link.icon}
-                </span>
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
+                <Wallet className="w-4 h-4 text-emerald-400" />
+                <span>Cuentas</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${dropdownCuentasAbierto ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Menú Desplegable Cuentas */}
+              {dropdownCuentasAbierto && (
+                <div
+                  onMouseLeave={() => setDropdownCuentasAbierto(false)}
+                  className="absolute left-0 mt-1 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                >
+                  <div className="px-3 py-1.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-800 mb-1">
+                    Módulo de Cuentas & Finanzas
+                  </div>
+                  {itemsCuentasVisibles.map((item) => {
+                    const isSubActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setDropdownCuentasAbierto(false)}
+                        className={`flex items-start space-x-3 px-3.5 py-2.5 hover:bg-slate-800 transition ${
+                          isSubActive ? 'bg-slate-800/90 font-bold text-emerald-400' : 'text-slate-200'
+                        }`}
+                      >
+                        <div className="mt-0.5 p-1 bg-slate-800 rounded border border-slate-700">
+                          {item.icon}
+                        </div>
+                        <div>
+                          <span className="block text-xs font-bold">{item.label}</span>
+                          <span className="block text-[10px] text-slate-400 font-normal mt-0.5">{item.desc}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 5. Eventos */}
+          {linksVisibles.find(l => l.href === '/eventos') && (
+            <Link
+              href="/eventos"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/eventos'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Calendar className="w-4 h-4 text-slate-400" />
+              <span>Eventos</span>
+            </Link>
+          )}
+
+          {/* 6. Reportes DGI */}
+          {linksVisibles.find(l => l.href === '/reportes/dgi') && (
+            <Link
+              href="/reportes/dgi"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/reportes/dgi'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 text-slate-400" />
+              <span>Reportes DGI</span>
+            </Link>
+          )}
+
+          {/* 7. Auditoría & DRP */}
+          {linksVisibles.find(l => l.href === '/auditoria') && (
+            <Link
+              href="/auditoria"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/auditoria'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <ShieldAlert className="w-4 h-4 text-slate-400" />
+              <span>Auditoría & DRP</span>
+            </Link>
+          )}
+
+          {/* 8. Usuarios */}
+          {linksVisibles.find(l => l.href === '/admin/usuarios') && (
+            <Link
+              href="/admin/usuarios"
+              className={`whitespace-nowrap inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                pathname === '/admin/usuarios'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <UserCheck className="w-4 h-4 text-slate-400" />
+              <span>Usuarios</span>
+            </Link>
+          )}
         </nav>
 
         {/* Derecha: Usuario Activo y Cierre de Sesión */}
