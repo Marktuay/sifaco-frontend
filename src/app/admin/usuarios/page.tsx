@@ -38,7 +38,7 @@ export default function GestionUsuariosPage() {
 
   const [guardando, setGuardando] = useState(false);
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://34.61.174.107/api/v1';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
   const cargarUsuarios = async () => {
     setCargando(true);
