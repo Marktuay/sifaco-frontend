@@ -48,19 +48,19 @@ export default function ReportesDGIPage() {
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <span className="text-xs font-bold text-slate-400 uppercase">Rango de Folios Utilizados</span>
-              <p className="text-base font-bold text-slate-800 mt-1">{informe.rango_folios_utilizados}</p>
+              <p className="text-base font-bold text-slate-800 mt-1">{informe.rango_folios_utilizados || 'N/A'}</p>
             </div>
             <div>
               <span className="text-xs font-bold text-slate-400 uppercase">Facturas Emitidas</span>
-              <p className="text-base font-bold text-emerald-600 mt-1">{informe.total_facturas_emitidas} folios</p>
+              <p className="text-base font-bold text-emerald-600 mt-1">{informe.total_facturas_emitidas ?? 0} folios</p>
             </div>
             <div>
               <span className="text-xs font-bold text-slate-400 uppercase">Facturas Anuladas</span>
-              <p className="text-base font-bold text-rose-600 mt-1">{informe.total_facturas_anuladas} folios</p>
+              <p className="text-base font-bold text-rose-600 mt-1">{informe.total_facturas_anuladas ?? 0} folios</p>
             </div>
             <div>
               <span className="text-xs font-bold text-slate-400 uppercase">Débito Fiscal IVA 15%</span>
-              <p className="text-base font-bold text-amber-600 mt-1">C$ {informe.total_iva_debito_nio.toFixed(2)}</p>
+              <p className="text-base font-bold text-amber-600 mt-1">C$ {(informe.total_iva_debito_nio ?? 0).toFixed(2)}</p>
             </div>
           </div>
 
@@ -82,7 +82,7 @@ export default function ReportesDGIPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 text-sm">
-                  {informe.facturas.map((f, i) => (
+                  {(informe.facturas || []).map((f, i) => (
                     <tr key={i} className={f.estado === 'ANULADA' ? 'bg-rose-50/50 text-slate-400 line-through' : 'hover:bg-slate-50'}>
                       <td className="p-3 font-mono font-bold text-slate-800">{f.correlativo_preimpreso}</td>
                       <td className="p-3">{f.fecha_emision}</td>

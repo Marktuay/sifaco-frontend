@@ -46,7 +46,7 @@ export default function GestionUsuariosPage() {
       const res = await fetch(`${apiBaseUrl}/usuarios`);
       if (!res.ok) throw new Error('Error al cargar la lista de usuarios');
       const data = await res.json();
-      setUsuarios(data);
+      setUsuarios(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setErrorMsg(err.message || 'Error al obtener usuarios');
     } finally {
