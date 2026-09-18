@@ -31,7 +31,8 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
 // Helpers específicos para CRM Clientes
 export async function getClientes(search?: string): Promise<Cliente[]> {
   const query = search ? `?search=${encodeURIComponent(search)}` : '';
-  return fetchApi<Cliente[]>(`/clientes${query}`);
+  const data = await fetchApi<Cliente[]>(`/clientes${query}`);
+  return Array.isArray(data) ? data : [];
 }
 
 export async function crearCliente(payload: CrearClientePayload): Promise<Cliente> {

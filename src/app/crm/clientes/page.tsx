@@ -33,9 +33,10 @@ export default function CRMClientesPage() {
     setError(null);
     try {
       const data = await getClientes(searchQuery);
-      setClientes(data);
+      setClientes(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message || 'Error al cargar clientes del CRM');
+      setClientes([]);
     } finally {
       setCargando(false);
     }
@@ -194,14 +195,14 @@ export default function CRMClientesPage() {
                     Cargando catálogo de clientes CRM...
                   </td>
                 </tr>
-              ) : clientes.length === 0 ? (
+              ) : (!clientes || clientes.length === 0) ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-500">
                     No se encontraron clientes registrados en el CRM.
                   </td>
                 </tr>
               ) : (
-                clientes.map((c) => (
+                (clientes || []).map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3 px-3 font-mono font-bold text-slate-900 whitespace-nowrap text-xs">
                       {c.ruc_cedula}

@@ -115,18 +115,20 @@ function FacturacionContent() {
 
   const cargarClientesCRM = async () => {
     try {
-      const list = await getClientes();
-      setClientesList(list);
+      const list = (await getClientes()) || [];
+      const safeList = Array.isArray(list) ? list : [];
+      setClientesList(safeList);
 
       // Pre-seleccionar si viene por URL param o el primero
       if (clienteIdParam) {
-        const found = list.find((c) => c.id === clienteIdParam);
+        const found = safeList.find((c) => c && c.id === clienteIdParam);
         if (found) setClienteSeleccionado(found);
-      } else if (list.length > 0 && !clienteSeleccionado) {
-        setClienteSeleccionado(list[0]);
+      } else if (safeList.length > 0 && !clienteSeleccionado) {
+        setClienteSeleccionado(safeList[0]);
       }
     } catch (err) {
       console.error('Error al cargar clientes CRM:', err);
+      setClientesList([]);
     }
   };
 
@@ -314,16 +316,16 @@ function FacturacionContent() {
             <select
               value={clienteSeleccionado?.id || ''}
               onChange={(e) => {
-                const found = clientesList.find((c) => c.id === e.target.value);
+                const found = (clientesList || []).find((c) => c && c.id === e.target.value);
                 if (found) setClienteSeleccionado(found);
               }}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500"
               required
             >
-              {clientesList.length === 0 ? (
-                <option value="">Cargando clientes CRM...</option>
+              {(!clientesList || clientesList.length === 0) ? (
+                <option value="">No hay clientes registrados en CRM...</option>
               ) : (
-                clientesList.map((c) => (
+                (clientesList || []).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.razon_social} ({c.ruc_cedula})
                   </option>
