@@ -1,6 +1,6 @@
 import { Cliente, CrearClientePayload } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -26,6 +26,31 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
     }
     throw err;
   }
+}
+
+// Helpers específicos para Eventos y Centros de Costo
+export async function getEventos(search?: string): Promise<any[]> {
+  const query = search ? `?search=${encodeURIComponent(search)}` : '';
+  const data = await fetchApi<any[]>(`/eventos${query}`);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function crearEvento(payload: any): Promise<any> {
+  return fetchApi<any>('/eventos', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getPresupuestoHotel(eventoId: string): Promise<any> {
+  return fetchApi<any>(`/eventos/${eventoId}/presupuesto`);
+}
+
+export async function guardarPresupuestoHotel(eventoId: string, payload: any): Promise<any> {
+  return fetchApi<any>(`/eventos/${eventoId}/presupuesto`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }
 
 // Helpers específicos para CRM Clientes
@@ -191,6 +216,35 @@ function getMockData<T>(endpoint: string, options?: RequestInit): T {
         estado: 'EMITIDA',
       },
       escp2_payload_base64: 'G0ASeAEKa1ABQzY...demo',
+    } as unknown as T;
+  }
+
+  if (endpoint.includes('/presupuesto')) {
+    const totalAB = 2174.70 + 458.70 + 1250.70;
+    const totalCotizado = totalAB + 5500.0 + 1500.0 + 770.0;
+    return {
+      id: 'demo-presupuesto-uuid',
+      evento_id: '11111111-1111-1111-1111-111111111111',
+      hotel_sede: 'Golden Tower Hotel & Suites',
+      fecha: '23-sept',
+      salon: 'Gran Titanio',
+      pax: 60,
+      almuerzo_usd: 2174.70,
+      estacion_cafe_usd: 458.70,
+      coffee_breaks_usd: 1250.70,
+      total_ab_usd: totalAB,
+      cargo_montaje_usd: 0.0,
+      renta_salon_usd: 5500.00,
+      consumo_minimo_usd: 6050.00,
+      montaje_dia_anterior_usd: 1500.00,
+      audiovisuales_usd: 0.0,
+      internet_usd: 770.00,
+      cableado_electrico_usd: 0.0,
+      servicio_medico_usd: 0.0,
+      renta_sala_pequena_usd: 0.0,
+      total_cotizado_usd: totalCotizado,
+      link_presupuesto: 'https://drive.google.com/cotizacion-golden-tower.pdf',
+      montaje_observaciones: 'Montaje 22 de septiembre, a partir 8:00 a.m.',
     } as unknown as T;
   }
 

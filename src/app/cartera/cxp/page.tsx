@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PlusCircle, FileText, CheckCircle, X, Printer, ShieldAlert } from 'lucide-react';
 
 export interface FacturaProveedor {
@@ -23,6 +24,16 @@ export interface FacturaProveedor {
 }
 
 export default function CarteraCxPPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500 font-medium">Cargando Compras CxP...</div>}>
+      <CarteraCxPContent />
+    </Suspense>
+  );
+}
+
+function CarteraCxPContent() {
+  const searchParams = useSearchParams();
+  const eventoParam = searchParams.get('evento');
   const [compras, setCompras] = useState<FacturaProveedor[]>([
     {
       id: '1',
@@ -96,6 +107,13 @@ export default function CarteraCxPPage() {
 
   // Alerta de éxito
   const [mensajeExito, setMensajeExito] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (eventoParam) {
+      setEventoNombre(eventoParam);
+      setModalAbierto(true);
+    }
+  }, [eventoParam]);
 
   // Cálculo en tiempo real del formulario
   const subtotalNum = parseFloat(subtotalInput) || 0;

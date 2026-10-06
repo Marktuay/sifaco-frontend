@@ -132,10 +132,15 @@ function FacturacionContent() {
     }
   };
 
+  const eventoParam = searchParams.get('evento');
+
   useEffect(() => {
     cargarClientesCRM();
     verificarEstadoAgenteImpresion().then((online) => setAgenteOnline(online));
-  }, [clienteIdParam]);
+    if (eventoParam) {
+      setObservaciones(`Centro de Costos: ${eventoParam}`);
+    }
+  }, [clienteIdParam, eventoParam]);
 
   const agregarLinea = () => {
     setDetalles([...detalles, { descripcion: '', cantidad: 1, precio_unitario: 0, exento: false }]);
