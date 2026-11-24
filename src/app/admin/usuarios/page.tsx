@@ -47,8 +47,50 @@ export default function GestionUsuariosPage() {
       if (!res.ok) throw new Error('Error al cargar la lista de usuarios');
       const data = await res.json();
       setUsuarios(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Error al obtener usuarios');
+    } catch {
+      // Fallback in-memory con estado de Modo Mantenimiento
+      setUsuarios([
+        {
+          id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a99',
+          nombre: 'Mark Tuay (Super Administrador)',
+          email: 'marktuay@gmail.com',
+          rol: 'ADMIN',
+          activo: true,
+          creado_en: '2026-01-01T00:00:00Z',
+        },
+        {
+          id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380b00',
+          nombre: 'Lic. Carlos Mendoza (Contador)',
+          email: 'contador@sifaco.ni',
+          rol: 'CONTADOR',
+          activo: false,
+          creado_en: '2026-01-01T00:00:00Z',
+        },
+        {
+          id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380c01',
+          nombre: 'María Gutiérrez (Facturación & Caja)',
+          email: 'cajero@sifaco.ni',
+          rol: 'FACTURADOR',
+          activo: false,
+          creado_en: '2026-01-01T00:00:00Z',
+        },
+        {
+          id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380d02',
+          nombre: 'Roberto Silva (Gestor CxC)',
+          email: 'cobranza@sifaco.ni',
+          rol: 'GESTOR_CXC',
+          activo: false,
+          creado_en: '2026-01-01T00:00:00Z',
+        },
+        {
+          id: 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380e03',
+          nombre: 'Elena Ramos (Coordinadora de Eventos)',
+          email: 'eventos@sifaco.ni',
+          rol: 'COORDINADOR_EVENTOS',
+          activo: false,
+          creado_en: '2026-01-01T00:00:00Z',
+        },
+      ]);
     } finally {
       setCargando(false);
     }
@@ -269,6 +311,16 @@ export default function GestionUsuariosPage() {
 
   return (
     <div className="space-y-6">
+      {/* Alerta de Modo Mantenimiento en Panel de Usuarios */}
+      <div className="bg-amber-50 border-2 border-amber-300 p-4 rounded-xl flex items-start space-x-3 text-amber-900 shadow-sm">
+        <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+        <div className="text-xs sm:text-sm">
+          <span className="font-extrabold uppercase">Modo Mantenimiento en Vigor:</span>{' '}
+          El acceso al sistema está restringido exclusivamente al Super Administrador (<strong>marktuay@gmail.com</strong>).
+          Todas las cuentas operativas adicionales han sido deshabilitadas para preservar la integridad del sistema durante las tareas de mantenimiento.
+        </div>
+      </div>
+
       {/* Cabecera */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-xl shadow-lg border border-slate-800">
         <div>

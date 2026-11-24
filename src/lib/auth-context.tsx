@@ -30,8 +30,8 @@ const AuthContext = createContext<AuthContextType>({
 
 const DEFAULT_ADMIN: UsuarioSession = {
   id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a99',
-  nombre: 'Administrador General',
-  email: 'admin@sifaco.ni',
+  nombre: 'Mark Tuay (Super Administrador)',
+  email: 'marktuay@gmail.com',
   rol: 'ADMIN',
 };
 
@@ -50,8 +50,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUsuario(null);
         setToken(null);
       } else {
-        setToken(savedToken);
-        setUsuario(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        // En Modo Mantenimiento: invalidar automáticamente sesiones que no sean de marktuay@gmail.com
+        if (parsed.email?.toLowerCase() !== 'marktuay@gmail.com') {
+          setUsuario(null);
+          setToken(null);
+          localStorage.removeItem('sifaco_auth_token');
+          localStorage.removeItem('sifaco_user');
+        } else {
+          setToken(savedToken);
+          setUsuario(parsed);
+        }
       }
     } catch {
       setUsuario(null);
@@ -63,6 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (newToken?: string, newUsuario?: UsuarioSession) => {
     const usr = newUsuario || DEFAULT_ADMIN;
+    // Forzar exclusividad en Modo Mantenimiento
+    if (usr.email?.toLowerCase() !== 'marktuay@gmail.com') {
+      throw new Error('Acceso denegado: El sistema se encuentra en modo mantenimiento. Solo marktuay@gmail.com está autorizado.');
+    }
     const tok = newToken || 'mock-jwt-admin-token';
     setToken(tok);
     setUsuario(usr);
@@ -72,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    const userEmail = usuario?.email || 'admin@sifaco.ni';
+    const userEmail = usuario?.email || 'marktuay@gmail.com';
     const userRole = usuario?.rol || 'ADMIN';
 
     setToken(null);

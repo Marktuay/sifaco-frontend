@@ -248,5 +248,23 @@ function getMockData<T>(endpoint: string, options?: RequestInit): T {
     } as unknown as T;
   }
 
+  if (endpoint.includes('/auth/login') && options?.method === 'POST') {
+    try {
+      const body = JSON.parse((options.body as string) || '{}');
+      if (body.email?.trim().toLowerCase() === 'marktuay@gmail.com') {
+        return {
+          token: 'mock-jwt-superadmin-token',
+          usuario: {
+            id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a99',
+            nombre: 'Mark Tuay (Super Administrador)',
+            email: 'marktuay@gmail.com',
+            rol: 'ADMIN',
+          },
+        } as unknown as T;
+      }
+    } catch {}
+    throw new Error('El sistema se encuentra en modo mantenimiento. Todas las cuentas estándar han sido deshabilitadas temporalmente. Solo la cuenta de administrador marktuay@gmail.com está autorizada.');
+  }
+
   return {} as T;
 }

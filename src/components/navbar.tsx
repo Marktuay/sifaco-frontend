@@ -47,7 +47,10 @@ export default function Navbar() {
           <Link href="/login" className="text-2xl font-black tracking-widest text-emerald-400">
             SIFACO
           </Link>
-          <span className="text-xs text-slate-400 font-mono">Acceso Seguro de Usuarios</span>
+          <div className="flex items-center space-x-2 bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-full text-xs font-mono font-bold">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse mr-1"></span>
+            <span>MODO MANTENIMIENTO ACTIVO</span>
+          </div>
         </div>
       </header>
     );
@@ -83,7 +86,14 @@ export default function Navbar() {
   const linksVisibles = navLinks.filter((link) => tienePermiso(link.roles));
 
   return (
-    <header className="bg-slate-900 text-white shadow-md border-b border-slate-800 relative z-40" role="banner">
+    <>
+      {/* Cinta de Advertencia: Modo Mantenimiento */}
+      <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 px-4 py-1.5 text-xs font-black text-center flex items-center justify-center space-x-2 border-b border-amber-600 shadow-sm">
+        <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+        <span>MODO MANTENIMIENTO ACTIVO — Acceso Restringido Exclusivamente a Super Administrador (marktuay@gmail.com)</span>
+      </div>
+
+      <header className="bg-slate-900 text-white shadow-md border-b border-slate-800 relative z-40" role="banner">
       <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-4">
         
         {/* Izquierda: Logo SIFACO */}
@@ -296,5 +306,6 @@ export default function Navbar() {
 
       </div>
     </header>
+    </>
   );
 }

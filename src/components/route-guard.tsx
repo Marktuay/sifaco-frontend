@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
 export default function RouteGuard({ children }: { children: React.ReactNode }) {
-  const { usuario, cargandoAuth } = useAuth();
+  const { usuario, cargandoAuth, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -13,11 +13,17 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
     if (!cargandoAuth) {
       if (!usuario && pathname !== '/login') {
         router.push('/login');
-      } else if (usuario && pathname === '/login') {
-        router.push('/');
+      } else if (usuario) {
+        // En Modo Mantenimiento: rechazar cualquier usuario que no sea marktuay@gmail.com
+        if (usuario.email?.toLowerCase() !== 'marktuay@gmail.com') {
+          logout();
+          router.push('/login');
+        } else if (pathname === '/login') {
+          router.push('/');
+        }
       }
     }
-  }, [usuario, cargandoAuth, pathname, router]);
+  }, [usuario, cargandoAuth, pathname, router, logout]);
 
   if (cargandoAuth) {
     return (
