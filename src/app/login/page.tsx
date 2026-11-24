@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { fetchApi } from '@/lib/api-client';
-import { Wrench, ShieldAlert, Lock, CheckCircle2, XCircle, KeyRound, AlertTriangle } from 'lucide-react';
+import { Wrench, ShieldAlert, Lock, CheckCircle2, XCircle } from 'lucide-react';
 
 const ADMIN_EMAIL_AUTORIZADO = 'marktuay@gmail.com';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState(ADMIN_EMAIL_AUTORIZADO);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +46,6 @@ export default function LoginPage() {
     }
   };
 
-  const seleccionarCuentaAdmin = () => {
-    setEmail(ADMIN_EMAIL_AUTORIZADO);
-    setPassword('admin123');
-    setError(null);
-  };
-
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl border-2 border-amber-300 w-full max-w-lg overflow-hidden space-y-0">
@@ -86,40 +80,37 @@ export default function LoginPage() {
           )}
 
           {/* Formulario de Login */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             <div>
               <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                Correo Electrónico Autorizado
+                Correo Electrónico
               </label>
               <div className="relative">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border-2 border-slate-300 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-slate-50 focus:bg-white"
-                  placeholder="marktuay@gmail.com"
+                  className="w-full border-2 border-slate-300 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white"
+                  placeholder="Ingrese correo electrónico"
                   required
-                  autoComplete="email"
+                  autoComplete="off"
                 />
               </div>
-              <p className="text-[11px] text-slate-500 mt-1 font-mono">
-                Solo la cuenta <span className="font-bold text-amber-700">{ADMIN_EMAIL_AUTORIZADO}</span> está habilitada.
-              </p>
             </div>
 
             <div>
               <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                Contraseña de Administrador
+                Contraseña
               </label>
               <div className="relative">
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border-2 border-slate-300 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-slate-50 focus:bg-white"
-                  placeholder="••••••••"
+                  className="w-full border-2 border-slate-300 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white"
+                  placeholder="Ingrese su contraseña"
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                 />
               </div>
             </div>
@@ -160,18 +151,6 @@ export default function LoginPage() {
                   Deshabilitadas
                 </span>
               </div>
-            </div>
-
-            {/* Botón de acceso rápido para pruebas admin */}
-            <div className="pt-2 text-center">
-              <button
-                type="button"
-                onClick={seleccionarCuentaAdmin}
-                className="inline-flex items-center space-x-1.5 text-xs text-amber-700 hover:text-amber-800 font-bold underline cursor-pointer"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>Rellenar credencial sugerida (marktuay@gmail.com / admin123)</span>
-              </button>
             </div>
           </div>
 
