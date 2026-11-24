@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { fetchApi } from '@/lib/api-client';
-import { Wrench, ShieldAlert, Lock, CheckCircle2, XCircle } from 'lucide-react';
+import { Wrench, ShieldAlert, Lock } from 'lucide-react';
 
 const ADMIN_EMAIL_AUTORIZADO = 'marktuay@gmail.com';
 
@@ -124,35 +124,6 @@ export default function LoginPage() {
               <span>{loading ? 'Validando Acceso Superadmin...' : 'Acceder al Panel de Control (Admin)'}</span>
             </button>
           </form>
-
-          {/* Estado de Cuentas en Modo Mantenimiento */}
-          <div className="border-t border-slate-200 pt-5 space-y-3">
-            <div className="text-[11px] font-black text-slate-500 uppercase tracking-wider text-center">
-              Estado de Acceso por Cuentas:
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs">
-                <div className="flex items-center space-x-2 font-mono font-bold text-emerald-900">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{ADMIN_EMAIL_AUTORIZADO}</span>
-                </div>
-                <span className="bg-emerald-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded uppercase">
-                  Habilitada (Admin)
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-500 opacity-80">
-                <div className="flex items-center space-x-2 font-mono">
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
-                  <span>Cuentas de Facturadores, Contadores, Gestores CxC</span>
-                </div>
-                <span className="bg-rose-100 text-rose-700 font-bold text-[10px] px-2 py-0.5 rounded uppercase">
-                  Deshabilitadas
-                </span>
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>
